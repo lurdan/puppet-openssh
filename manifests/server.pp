@@ -1,7 +1,6 @@
 class openssh::server (
   $version = 'present',
-  $active = true,
-  $server_config = false
+  $active = true
   ) {
 
   package { 'openssh-server':
@@ -9,8 +8,8 @@ class openssh::server (
   }
 
   if $openssh::server_init_config {
-    case $::operatingsystem {
-      /(?i-mx:debian|ubuntu)/: {
+    case $::osfamily {
+      'Debian': {
         sysvinit::init::config { 'ssh':
           changes => $openssh::server_init_config,
         }
@@ -19,9 +18,9 @@ class openssh::server (
   }
 
   service { 'openssh-server':
-    name => $::operatingsystem ? {
-      /(?i-mx:debian|ubuntu)/ => 'ssh',
-      /(?i-mx:redhat|centos)/ => 'sshd',
+    name => $::osfamily ? {
+      'Debian' => 'ssh',
+      'Redhat' => 'sshd',
     },
     ensure => $active ? {
       true => running,
@@ -31,13 +30,5 @@ class openssh::server (
     hasrestart => true,
     require => Package['openssh-server'],
   }
-
-  if $server_config {
-    file { '/etc/ssh/sshd_config':
-      mode => 400,
-      content => $server_config,
-      require => Package['openssh-server'],
-      notify => Service['openssh-server'],
-    }
-  }
 }
+
