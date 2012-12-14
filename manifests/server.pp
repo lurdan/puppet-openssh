@@ -20,7 +20,7 @@ class openssh::server (
   service { 'openssh-server':
     name => $::osfamily ? {
       'Debian' => 'ssh',
-      'Redhat' => 'sshd',
+      'RedHat' => 'sshd',
     },
     ensure => $active ? {
       true => running,
