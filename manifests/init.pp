@@ -1,5 +1,5 @@
 class openssh (
-  $version = 'present',
+  $version = 'latest',
   $client = true,
   $client_config = false,
   $server = true,
@@ -32,3 +32,24 @@ define openssh::config::server (
   }
 }
 
+define openssh::key::private (
+  $user,
+  $keyfile,
+  $home = "/home/${user}",
+  $group = "$user"
+  ) {
+  file { "${home}/.ssh/id_${name}":
+    mode => 600, owner => $user, group => $group,
+    content => $keyfile,
+  }
+}
+
+define openssh::key::authorized (
+  $authfile,
+  $publickey
+  ) {
+  concat::fragment { "openssh-key-authorized-${name}":
+    target => $authfile,
+    content => "${publickey}\n",
+  }
+}
